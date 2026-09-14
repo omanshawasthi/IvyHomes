@@ -105,7 +105,7 @@ export class IvyApiClient {
       logger.warn({ errors: result.error.flatten() }, 'Schema mismatch on /auth/login');
       throw new IvyApiError(200, 'Login response shape unexpected', '/auth/login');
     }
-    return result.data;
+    return result.data as IvyLoginResponse;
   }
 
   async logout(token: string): Promise<void> {
