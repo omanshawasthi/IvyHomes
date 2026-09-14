@@ -1,3 +1,4 @@
-import { app } from '../backend/src/app.js';
+import { createApp } from '../backend/src/app.js';
 
+const app = createApp();
 export default app;
