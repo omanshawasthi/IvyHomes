@@ -17,7 +17,7 @@ export function InsightsPage() {
     );
   }
 
-  if (isError || !data?.local_analysis) {
+  if (isError || !(data as any)?.local_analysis) {
     return (
       <div className="page-container">
         <div className="empty-state">
@@ -28,7 +28,7 @@ export function InsightsPage() {
     );
   }
 
-  const { local_analysis: a, upstream_error } = data;
+  const { local_analysis: a, upstream_error } = (data as any);
   const ans = a.answers as Record<string, any>;
   const insights = a.insights as Record<string, any>;
   const dataset = a.dataset as Record<string, any>;

@@ -48,7 +48,7 @@ export function AuditPage() {
         </h2>
         <div className="findings-list">
           {confirmed.map(finding => (
-            <FindingCard key={finding.id} finding={finding} />
+            <FindingCard key={finding._id} finding={finding} />
           ))}
         </div>
       </section>
@@ -59,8 +59,8 @@ export function AuditPage() {
         </h2>
         <div className="findings-list findings-list--compact">
           {ruledOut.map(finding => (
-            <div key={finding.id} className="ruled-out-item">
-              <span className="ruled-out-id">{finding.id}</span>
+            <div key={finding._id} className="ruled-out-item">
+              <span className="ruled-out-id">{finding._id}</span>
               <span className="ruled-out-reason">{finding.ruling_reason}</span>
             </div>
           ))}
@@ -73,10 +73,9 @@ export function AuditPage() {
 function FindingCard({ finding }: { finding: FindingDTO }) {
   const [isOpen, setIsOpen] = useState(false);
   
-  // Only load live verification when the accordion is opened
   const { data: verification, isLoading } = useQuery({
-    queryKey: ['analytics', 'verify', finding.id],
-    queryFn: () => analyticsApi.verifyFinding(finding.id),
+    queryKey: ['analytics', 'verify', finding._id],
+    queryFn: () => analyticsApi.verifyFinding(finding._id),
     enabled: isOpen && finding.evidence.length > 0,
   });
 
@@ -87,7 +86,7 @@ function FindingCard({ finding }: { finding: FindingDTO }) {
           <span className="finding-badge">{finding.category}</span>
           <code className="finding-endpoint">{finding.endpoint}</code>
         </div>
-        <h3 className="finding-card__title">{finding.id}</h3>
+        <h3 className="finding-card__title">{finding._id}</h3>
         <span className="finding-card__toggle">{isOpen ? '−' : '+'}</span>
       </div>
 

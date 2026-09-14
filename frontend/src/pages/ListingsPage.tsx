@@ -118,7 +118,7 @@ export function ListingsPage() {
         <div className="empty-state">
           <span className="empty-icon">⊘</span>
           <p>No listings match your filters.</p>
-          <button className="btn-secondary" onClick={() => setFilters({ locality: '', bedroom: '', sort_by: 'posted_at' })}>
+          <button className="btn-secondary" onClick={() => { setLocalityInput(''); setFilters({ bedroom: '', sort_by: 'posted_at' }); }}>
             Clear Filters
           </button>
         </div>

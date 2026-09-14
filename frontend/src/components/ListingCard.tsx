@@ -13,8 +13,9 @@ export function ListingCard({ listing, isFavourite = false }: ListingCardProps) 
   const queryClient = useQueryClient();
 
   const toggleFavourite = useMutation({
-    mutationFn: (id: string) =>
-      isFavourite ? favouritesApi.remove(id) : favouritesApi.add(id),
+    mutationFn: async (id: string) => {
+      isFavourite ? await favouritesApi.remove(id) : await favouritesApi.add(id);
+    },
     onSuccess: () => {
       // Invalidate both lists so UI updates instantly
       queryClient.invalidateQueries({ queryKey: ['favourites'] });

@@ -22,7 +22,6 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "exactOptionalPropertyTypes": true,
 
     /* Path aliases */
     "baseUrl": ".",
