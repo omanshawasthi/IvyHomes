@@ -12,9 +12,14 @@ const client = new IvyApiClient();
  * Returns null if the analysis script hasn't been run yet.
  */
 function loadAnalysisOutput(): unknown {
-  const outputPath = resolve(process.cwd(), 'analysis-output.json');
+  let outputPath = resolve(process.cwd(), 'analysis-output.json');
   if (!existsSync(outputPath)) {
-    logger.warn('analysis-output.json not found — run `npm run analyze` first');
+    // Try Vercel root path
+    outputPath = resolve(process.cwd(), 'backend/analysis-output.json');
+  }
+  
+  if (!existsSync(outputPath)) {
+    logger.warn(`analysis-output.json not found — run \`npm run analyze\` first (checked ${outputPath})`);
     return null;
   }
   try {
