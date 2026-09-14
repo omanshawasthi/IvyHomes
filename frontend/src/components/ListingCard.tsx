@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { favouritesApi } from '@/api/client';
 import type { ListingDTO } from '../../../shared/types/index.js';
@@ -11,13 +12,29 @@ interface ListingCardProps {
 
 export function ListingCard({ listing, isFavourite = false }: ListingCardProps) {
   const queryClient = useQueryClient();
+  const [optimisticFav, setOptimisticFav] = useState<boolean | null>(null);
+
+  // Sync optimistic state with the true ground-truth prop
+  useEffect(() => {
+    setOptimisticFav(null);
+  }, [isFavourite]);
+
+  const currentFav = optimisticFav !== null ? optimisticFav : isFavourite;
 
   const toggleFavourite = useMutation({
     mutationFn: async (id: string) => {
-      isFavourite ? await favouritesApi.remove(id) : await favouritesApi.add(id);
+      // Use currentFav so it correctly toggles the optimistic state
+      currentFav ? await favouritesApi.remove(id) : await favouritesApi.add(id);
+    },
+    onMutate: () => {
+      // Update UI instantly before the network request finishes
+      setOptimisticFav(!currentFav);
+    },
+    onError: () => {
+      // Revert if the API call fails
+      setOptimisticFav(null);
     },
     onSuccess: () => {
-      // Invalidate both lists so UI updates instantly
       queryClient.invalidateQueries({ queryKey: ['favourites'] });
       queryClient.invalidateQueries({ queryKey: ['listings'] });
     },
@@ -31,15 +48,17 @@ export function ListingCard({ listing, isFavourite = false }: ListingCardProps) 
           <span aria-hidden="true">⌂</span>
         </div>
         <button
-          className={`listing-card__fav-btn ${isFavourite ? 'listing-card__fav-btn--active' : ''}`}
+          className={`listing-card__fav-btn ${currentFav ? 'listing-card__fav-btn--active' : ''}`}
           onClick={(e) => {
             e.preventDefault();
-            toggleFavourite.mutate(listing.listing_id);
+            // Prevent spam-clicking while a request is in flight
+            if (!toggleFavourite.isPending) {
+              toggleFavourite.mutate(listing.listing_id);
+            }
           }}
-          disabled={toggleFavourite.isPending}
-          aria-label={isFavourite ? "Remove from favourites" : "Add to favourites"}
+          aria-label={currentFav ? "Remove from favourites" : "Add to favourites"}
         >
-          {isFavourite ? '★' : '☆'}
+          {currentFav ? '★' : '☆'}
         </button>
       </div>
 
