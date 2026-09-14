@@ -2,14 +2,10 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { requireAuth } from '../middleware/requireAuth.js';
 import { IvyApiClient } from '../ivy-client/IvyApiClient.js';
-import { logger } from '../config/logger.js';
 import type { ListingDTO } from '../../../shared/types/index.js';
 
 const router = Router();
 const client = new IvyApiClient();
-
-// In-memory store: Map<ivyToken, Set<listing_id>>
-const favouritesStore = new Map<string, Set<string>>();
 
 router.use(requireAuth);
 
@@ -21,20 +17,14 @@ const AddSchema = z.object({
 router.get('/', async (req, res, next) => {
   try {
     const token = req.ivyToken;
-    const ids = Array.from(favouritesStore.get(token) || new Set<string>());
     
-    // Fetch details for all saved listings concurrently
-    const results: ListingDTO[] = [];
-    for (const id of ids) {
-      try {
-        const listing = await client.getListingById(id, token) as unknown as ListingDTO;
-        results.push(listing);
-      } catch (err) {
-        logger.warn({ listingId: id }, 'Failed to fetch saved listing details');
-      }
-    }
+    // Call the upstream API directly!
+    const response = await client.getFavourites(token);
     
-    res.json({ count: results.length, results });
+    // The upstream returns { count, results: IvyListing[] }.
+    // Our frontend expects { count, results: ListingDTO[] }.
+    // We can just cast it as the schemas match closely enough.
+    res.json({ count: response.count, results: response.results as unknown as ListingDTO[] });
   } catch (err) { next(err); }
 });
 
@@ -46,10 +36,7 @@ router.post('/', async (req, res, next) => {
     const { listing_id } = AddSchema.parse(req.body);
     const token = req.ivyToken;
     
-    if (!favouritesStore.has(token)) {
-      favouritesStore.set(token, new Set<string>());
-    }
-    favouritesStore.get(token)!.add(listing_id);
+    await client.addFavourite(listing_id, token);
     
     res.status(201).json({ message: 'Added', listing_id });
   } catch (err) { next(err); }
@@ -62,9 +49,7 @@ router.delete('/:id', async (req, res, next) => {
     if (!id) { res.status(400).json({ error: 'Missing ID' }); return; }
     
     const token = req.ivyToken;
-    if (favouritesStore.has(token)) {
-      favouritesStore.get(token)!.delete(id);
-    }
+    await client.removeFavourite(id, token);
     
     res.json({ message: 'Removed', listing_id: id });
   } catch (err) { next(err); }
