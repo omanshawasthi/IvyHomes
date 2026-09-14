@@ -1,0 +1,159 @@
+/* ============================================================
+   LISTING CARD
+   ============================================================ */
+
+.listing-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--card-radius);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow var(--transition-fast), border-color var(--transition-fast);
+  box-shadow: var(--card-shadow);
+  position: relative;
+}
+
+.listing-card:hover {
+  box-shadow: var(--card-shadow-hover);
+  border-color: rgba(45, 74, 110, 0.2); /* var(--survey) with opacity */
+}
+
+/* ── Image Placeholder ─────────────────────────────────────── */
+
+.listing-card__image-wrap {
+  position: relative;
+  height: 160px;
+  background: var(--rule);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--graphite);
+  font-size: 2rem;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.listing-card__fav-btn {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--rule);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--graphite);
+  font-size: 1.25rem;
+  transition: all var(--transition-fast);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  line-height: 1;
+}
+
+.listing-card__fav-btn:hover {
+  transform: scale(1.05);
+  color: var(--amber);
+}
+
+.listing-card__fav-btn--active {
+  color: var(--amber);
+}
+
+/* ── Content ───────────────────────────────────────────────── */
+
+.listing-card__content {
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+/* ── Signage Plate Wrapper ─────────────────────────────────── */
+/* Pulls the signage plate up to overlap the image slightly */
+.listing-card__signage {
+  margin-top: calc(var(--space-6) * -1);
+  margin-bottom: var(--space-4);
+  position: relative;
+  z-index: 2;
+}
+
+.listing-card__header {
+  margin-bottom: var(--space-4);
+}
+
+.listing-card__title {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  color: var(--ink);
+  margin-bottom: var(--space-1);
+}
+
+.listing-card__locality {
+  font-size: var(--text-sm);
+  color: var(--graphite);
+  font-weight: var(--weight-medium);
+}
+
+/* ── Specs Grid ────────────────────────────────────────────── */
+
+.listing-card__specs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: var(--space-4);
+}
+
+.spec-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.spec-label {
+  font-size: var(--text-xs);
+  color: var(--graphite);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.spec-value {
+  font-size: var(--text-sm);
+  color: var(--ink);
+  font-weight: var(--weight-medium);
+}
+
+/* ── Footer ────────────────────────────────────────────────── */
+
+.listing-card__footer {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.listing-card__link {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semi);
+  color: var(--survey);
+  letter-spacing: 0.02em;
+}
+
+.listing-card__link:hover {
+  text-decoration: underline;
+}
+
+.listing-card__badge-inactive {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--rule);
+  color: var(--graphite);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+}

@@ -1,0 +1,135 @@
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+  margin-bottom: var(--space-8);
+}
+
+.stat-card {
+  padding: var(--space-6);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--rule);
+}
+
+.stat-card--dark {
+  background: var(--blueprint);
+  color: white;
+  border: none;
+}
+
+.stat-card__label {
+  font-size: var(--text-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.8;
+  margin-bottom: var(--space-2);
+}
+
+.stat-card__value {
+  font-family: var(--font-display);
+  font-size: var(--text-4xl);
+}
+
+/* ── Answers Grid ─────────────────────────────────────────── */
+
+.answers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-8);
+}
+
+.answer-card {
+  display: flex;
+  background: white;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+}
+
+.answer-card--warning {
+  border-color: #fcd6d6;
+}
+
+.answer-card--warning .answer-card__num {
+  background: #fff0f0;
+  color: #c0392b;
+  border-right-color: #fcd6d6;
+}
+
+.answer-card__num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  background: var(--mist);
+  border-right: 1px solid var(--rule);
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  color: var(--blueprint);
+}
+
+.answer-card__content {
+  padding: var(--space-4);
+  flex: 1;
+}
+
+.answer-card__label {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--graphite);
+  margin-bottom: var(--space-1);
+}
+
+.answer-card__value {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-medium);
+  color: var(--ink);
+  margin-bottom: var(--space-1);
+}
+
+.answer-card__sub {
+  font-size: var(--text-xs);
+  color: var(--graphite);
+}
+
+/* ── Upstream Status ──────────────────────────────────────── */
+
+.status-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--rule);
+}
+
+.status-banner--error {
+  background: #fff0f0;
+  border-color: #fcd6d6;
+}
+
+.status-banner--success {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.status-banner__icon {
+  font-size: 1.5rem;
+}
+
+.status-banner--error .status-banner__icon { color: #c0392b; }
+.status-banner--success .status-banner__icon { color: #15803d; }
+
+.status-banner__text strong {
+  display: block;
+  font-size: var(--text-sm);
+  margin-bottom: 2px;
+}
+
+.status-banner__text p {
+  font-size: var(--text-sm);
+  color: var(--graphite);
+}

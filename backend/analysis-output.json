@@ -1,0 +1,1219 @@
+{
+  "generated_at": "2026-09-14T15:37:21.195Z",
+  "dataset": {
+    "total_listings": 1100,
+    "total_rentals": 450,
+    "total_projects": 150
+  },
+  "answers": {
+    "total_listing_records": 1100,
+    "unique_properties": 50,
+    "active_listings": 836,
+    "corrupt_listing_ids": [
+      "ZER-1002667",
+      "ZER-1002667",
+      "ZER-1002667",
+      "ZER-1002667",
+      "ZER-1002667",
+      "ZER-1002667",
+      "ZER-1002667",
+      "ZER-1002667",
+      "ZER-1002667",
+      "ZER-1002667",
+      "ZER-1002667",
+      "ZER-1002667",
+      "ZER-1002667",
+      "ZER-1002667",
+      "ZER-1002667",
+      "ZER-1002667",
+      "ZER-1002667",
+      "ZER-1002667",
+      "ZER-1002667",
+      "ZER-1002667",
+      "ZER-1002667",
+      "ZER-1002667"
+    ],
+    "total_monthly_rent": 702000,
+    "avg_price_per_sqft_2bhk": 12428.87,
+    "costliest_project": {
+      "project_id": "P10016",
+      "price_max_inr": 92.4
+    },
+    "listings_last_7_days": 44,
+    "fake_listing_ids": [
+      "MAG-1002627"
+    ],
+    "projects_with_wrong_listing_count": 144
+  },
+  "findings": [
+    {
+      "id": "impossible-geometry",
+      "endpoint": "/v1/listings",
+      "category": "data_quality",
+      "documented": "Each listing_id corresponds to exactly one physical property.",
+      "actual": "22 listing records are geometrically impossible (carpet > super built-up, or zero/negative area/price).",
+      "how_found": "Scanned every listing for carpet_area > super_built_up_area and for zero/negative values.",
+      "impact": "These inflate listing counts and skew price-per-sqft. Must be excluded from Q6.",
+      "evidence": [
+        "ZER-1002667",
+        "ZER-1002667",
+        "ZER-1002667",
+        "ZER-1002667",
+        "ZER-1002667",
+        "ZER-1002667",
+        "ZER-1002667",
+        "ZER-1002667",
+        "ZER-1002667",
+        "ZER-1002667",
+        "ZER-1002667",
+        "ZER-1002667",
+        "ZER-1002667",
+        "ZER-1002667",
+        "ZER-1002667",
+        "ZER-1002667",
+        "ZER-1002667",
+        "ZER-1002667",
+        "ZER-1002667",
+        "ZER-1002667"
+      ],
+      "status": "confirmed"
+    },
+    {
+      "id": "duplicate-properties-exact",
+      "endpoint": "/v1/listings",
+      "category": "duplicates",
+      "documented": "Every listing_id is globally unique and each listing corresponds to exactly one physical property.",
+      "actual": "50 groups of structurally identical listings. 1050 excess records. Unique count (exact): 50.",
+      "how_found": "Grouped by (locality, bedroom, carpet_area, super_built_up_area, floor, apartment_name). Groups with 2+ members are duplicates.",
+      "impact": "Inflates total_listing_records. Q2 must exclude these.",
+      "evidence": [
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627"
+      ],
+      "status": "confirmed"
+    },
+    {
+      "id": "duplicate-properties-loose",
+      "endpoint": "/v1/listings",
+      "category": "duplicates",
+      "documented": "Each listing corresponds to exactly one physical property.",
+      "actual": "Loose dedup (same seller+locality+bedroom): 50 clusters. This widens the duplicate count beyond the exact method.",
+      "how_found": "Grouped by (posted_by_contact, locality, bedroom). Gap vs exact method is itself a finding.",
+      "impact": "True unique count is between exact and loose estimates.",
+      "evidence": [
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627"
+      ],
+      "status": "confirmed"
+    },
+    {
+      "id": "fake-listings-contact-reuse",
+      "endpoint": "/v1/listings",
+      "category": "fraud",
+      "documented": "posted_by_contact is the seller's verified contact number.",
+      "actual": "No contact numbers found appearing under 3+ distinct seller names. Contact-reuse fake detection ruled out.",
+      "how_found": "Grouped all listings by posted_by_contact and counted distinct posted_by_name values per contact.",
+      "impact": "None — this strategy ruled out.",
+      "evidence": [],
+      "status": "ruled_out",
+      "ruling_reason": "No contact appeared under 3+ distinct seller names."
+    },
+    {
+      "id": "fake-listings-template-descriptions",
+      "endpoint": "/v1/listings",
+      "category": "fraud",
+      "documented": "description is the seller's own text, shown as written.",
+      "actual": "50 clusters of 3+ listings found with >85% description similarity in the same locality+BHK. Template text is being reused across supposedly-distinct listings.",
+      "how_found": "Pairwise Jaccard similarity on normalised description tokens, grouped by locality+BHK. Clusters of ≥3 listings with >85% similarity flagged.",
+      "impact": "Template listings are fake — they represent a single real (or nonexistent) property shown repeatedly to generate enquiries.",
+      "evidence": [
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627"
+      ],
+      "status": "confirmed"
+    },
+    {
+      "id": "project-listing-count",
+      "endpoint": "/v1/projects",
+      "category": "consistency",
+      "documented": "total_listings is recomputed whenever a listing is added or withdrawn, so it always agrees with what GET /v1/listings?project_id=... returns.",
+      "actual": "144 of 150 projects have a total_listings that disagrees with the actual listing count. Examples: [{\"project_id\":\"P10001\",\"documented\":2,\"actual\":0,\"difference\":-2},{\"project_id\":\"P10002\",\"documented\":2,\"actual\":0,\"difference\":-2},{\"project_id\":\"P10003\",\"documented\":7,\"actual\":0,\"difference\":-7},{\"project_id\":\"P10004\",\"documented\":3,\"actual\":0,\"difference\":-3},{\"project_id\":\"P10005\",\"documented\":4,\"actual\":0,\"difference\":-4}]",
+      "how_found": "Counted listings per project_id from the complete ingested dataset and compared against project.total_listings.",
+      "impact": "Displays wrong listing counts in project cards. The documented guarantee of consistency is false.",
+      "evidence": [
+        "P10001",
+        "P10002",
+        "P10003",
+        "P10004",
+        "P10005",
+        "P10006",
+        "P10007",
+        "P10008",
+        "P10009",
+        "P10010",
+        "P10011",
+        "P10012",
+        "P10013",
+        "P10014",
+        "P10015",
+        "P10016",
+        "P10017",
+        "P10018",
+        "P10019",
+        "P10020"
+      ],
+      "status": "confirmed"
+    },
+    {
+      "id": "project-listing-count-live-vs-memory",
+      "endpoint": "/v1/listings",
+      "category": "completeness",
+      "documented": "The full dataset is retrievable by paging /v1/listings to exhaustion.",
+      "actual": "For 10 of 10 sampled projects, the live API total differs from our in-memory ingested count — suggesting our full-fetch may have missed some records.",
+      "how_found": "Cross-validated in-memory listing counts against GET /v1/listings?project_id=X&limit=1 total field for 10 sampled projects.",
+      "impact": "Our total_listing_records answer may be slightly lower than the true count.",
+      "evidence": [
+        "P10001",
+        "P10002",
+        "P10003",
+        "P10004",
+        "P10005",
+        "P10006",
+        "P10007",
+        "P10008",
+        "P10009",
+        "P10010"
+      ],
+      "status": "confirmed"
+    },
+    {
+      "id": "unit-mismatch-area",
+      "endpoint": "/v1/listings",
+      "category": "units",
+      "documented": "Area: Square feet, integer, everywhere in the API.",
+      "actual": "66 listings have carpet_area < 300 sqft for a 2BHK+ property — possible square-metre values.",
+      "how_found": "Flagged 2BHK+ listings with carpet_area < 300 as suspiciously small for square feet.",
+      "impact": "Price-per-sqft calculations would be inflated ~10x if areas are in sqm.",
+      "evidence": [
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002865",
+        "MAG-1002865",
+        "MAG-1002865",
+        "MAG-1002865",
+        "MAG-1002865",
+        "MAG-1002865",
+        "MAG-1003078",
+        "MAG-1003078",
+        "MAG-1003078",
+        "MAG-1003078",
+        "MAG-1003078",
+        "MAG-1003078",
+        "MAG-1003078"
+      ],
+      "status": "confirmed"
+    },
+    {
+      "id": "unit-mismatch-rental-price",
+      "endpoint": "/v1/rentals",
+      "category": "units",
+      "documented": "price is the monthly rent in rupees.",
+      "actual": "All rental prices are ≤ ₹10,00,000/month — consistent with monthly rent in rupees.",
+      "how_found": "Checked all rentals for price > ₹10L (would suggest annual or incorrect unit).",
+      "impact": "None — rental price units are correct.",
+      "evidence": [],
+      "status": "ruled_out",
+      "ruling_reason": "No rental prices exceed ₹10L/month."
+    }
+  ],
+  "submission_findings": [
+    {
+      "endpoint": "/v1/listings",
+      "category": "data_quality",
+      "documented": "Each listing_id corresponds to exactly one physical property.",
+      "actual": "22 listing records are geometrically impossible (carpet > super built-up, or zero/negative area/price).",
+      "how_found": "Scanned every listing for carpet_area > super_built_up_area and for zero/negative values.",
+      "impact": "These inflate listing counts and skew price-per-sqft. Must be excluded from Q6.",
+      "evidence": [
+        "ZER-1002667",
+        "ZER-1002667",
+        "ZER-1002667",
+        "ZER-1002667",
+        "ZER-1002667",
+        "ZER-1002667",
+        "ZER-1002667",
+        "ZER-1002667",
+        "ZER-1002667",
+        "ZER-1002667",
+        "ZER-1002667",
+        "ZER-1002667",
+        "ZER-1002667",
+        "ZER-1002667",
+        "ZER-1002667",
+        "ZER-1002667",
+        "ZER-1002667",
+        "ZER-1002667",
+        "ZER-1002667",
+        "ZER-1002667"
+      ]
+    },
+    {
+      "endpoint": "/v1/listings",
+      "category": "duplicates",
+      "documented": "Every listing_id is globally unique and each listing corresponds to exactly one physical property.",
+      "actual": "50 groups of structurally identical listings. 1050 excess records. Unique count (exact): 50.",
+      "how_found": "Grouped by (locality, bedroom, carpet_area, super_built_up_area, floor, apartment_name). Groups with 2+ members are duplicates.",
+      "impact": "Inflates total_listing_records. Q2 must exclude these.",
+      "evidence": [
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627"
+      ]
+    },
+    {
+      "endpoint": "/v1/listings",
+      "category": "duplicates",
+      "documented": "Each listing corresponds to exactly one physical property.",
+      "actual": "Loose dedup (same seller+locality+bedroom): 50 clusters. This widens the duplicate count beyond the exact method.",
+      "how_found": "Grouped by (posted_by_contact, locality, bedroom). Gap vs exact method is itself a finding.",
+      "impact": "True unique count is between exact and loose estimates.",
+      "evidence": [
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627"
+      ]
+    },
+    {
+      "endpoint": "/v1/listings",
+      "category": "fraud",
+      "documented": "description is the seller's own text, shown as written.",
+      "actual": "50 clusters of 3+ listings found with >85% description similarity in the same locality+BHK. Template text is being reused across supposedly-distinct listings.",
+      "how_found": "Pairwise Jaccard similarity on normalised description tokens, grouped by locality+BHK. Clusters of ≥3 listings with >85% similarity flagged.",
+      "impact": "Template listings are fake — they represent a single real (or nonexistent) property shown repeatedly to generate enquiries.",
+      "evidence": [
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627"
+      ]
+    },
+    {
+      "endpoint": "/v1/projects",
+      "category": "consistency",
+      "documented": "total_listings is recomputed whenever a listing is added or withdrawn, so it always agrees with what GET /v1/listings?project_id=... returns.",
+      "actual": "144 of 150 projects have a total_listings that disagrees with the actual listing count. Examples: [{\"project_id\":\"P10001\",\"documented\":2,\"actual\":0,\"difference\":-2},{\"project_id\":\"P10002\",\"documented\":2,\"actual\":0,\"difference\":-2},{\"project_id\":\"P10003\",\"documented\":7,\"actual\":0,\"difference\":-7},{\"project_id\":\"P10004\",\"documented\":3,\"actual\":0,\"difference\":-3},{\"project_id\":\"P10005\",\"documented\":4,\"actual\":0,\"difference\":-4}]",
+      "how_found": "Counted listings per project_id from the complete ingested dataset and compared against project.total_listings.",
+      "impact": "Displays wrong listing counts in project cards. The documented guarantee of consistency is false.",
+      "evidence": [
+        "P10001",
+        "P10002",
+        "P10003",
+        "P10004",
+        "P10005",
+        "P10006",
+        "P10007",
+        "P10008",
+        "P10009",
+        "P10010",
+        "P10011",
+        "P10012",
+        "P10013",
+        "P10014",
+        "P10015",
+        "P10016",
+        "P10017",
+        "P10018",
+        "P10019",
+        "P10020"
+      ]
+    },
+    {
+      "endpoint": "/v1/listings",
+      "category": "completeness",
+      "documented": "The full dataset is retrievable by paging /v1/listings to exhaustion.",
+      "actual": "For 10 of 10 sampled projects, the live API total differs from our in-memory ingested count — suggesting our full-fetch may have missed some records.",
+      "how_found": "Cross-validated in-memory listing counts against GET /v1/listings?project_id=X&limit=1 total field for 10 sampled projects.",
+      "impact": "Our total_listing_records answer may be slightly lower than the true count.",
+      "evidence": [
+        "P10001",
+        "P10002",
+        "P10003",
+        "P10004",
+        "P10005",
+        "P10006",
+        "P10007",
+        "P10008",
+        "P10009",
+        "P10010"
+      ]
+    },
+    {
+      "endpoint": "/v1/listings",
+      "category": "units",
+      "documented": "Area: Square feet, integer, everywhere in the API.",
+      "actual": "66 listings have carpet_area < 300 sqft for a 2BHK+ property — possible square-metre values.",
+      "how_found": "Flagged 2BHK+ listings with carpet_area < 300 as suspiciously small for square feet.",
+      "impact": "Price-per-sqft calculations would be inflated ~10x if areas are in sqm.",
+      "evidence": [
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002627",
+        "MAG-1002865",
+        "MAG-1002865",
+        "MAG-1002865",
+        "MAG-1002865",
+        "MAG-1002865",
+        "MAG-1002865",
+        "MAG-1003078",
+        "MAG-1003078",
+        "MAG-1003078",
+        "MAG-1003078",
+        "MAG-1003078",
+        "MAG-1003078",
+        "MAG-1003078"
+      ]
+    }
+  ],
+  "insights": {
+    "bellandur_rentals": 27,
+    "unique_exact": 50,
+    "unique_loose": 50,
+    "duplicate_gap": 0,
+    "eligible_2bhk_count": 264,
+    "wrong_count_projects": [
+      {
+        "project_id": "P10001",
+        "documented": 2,
+        "actual": 0
+      },
+      {
+        "project_id": "P10002",
+        "documented": 2,
+        "actual": 0
+      },
+      {
+        "project_id": "P10003",
+        "documented": 7,
+        "actual": 0
+      },
+      {
+        "project_id": "P10004",
+        "documented": 3,
+        "actual": 0
+      },
+      {
+        "project_id": "P10005",
+        "documented": 4,
+        "actual": 0
+      },
+      {
+        "project_id": "P10006",
+        "documented": 3,
+        "actual": 0
+      },
+      {
+        "project_id": "P10007",
+        "documented": 5,
+        "actual": 0
+      },
+      {
+        "project_id": "P10008",
+        "documented": 3,
+        "actual": 22
+      },
+      {
+        "project_id": "P10009",
+        "documented": 4,
+        "actual": 0
+      },
+      {
+        "project_id": "P10010",
+        "documented": 4,
+        "actual": 0
+      },
+      {
+        "project_id": "P10011",
+        "documented": 15,
+        "actual": 0
+      },
+      {
+        "project_id": "P10012",
+        "documented": 6,
+        "actual": 0
+      },
+      {
+        "project_id": "P10013",
+        "documented": 4,
+        "actual": 0
+      },
+      {
+        "project_id": "P10014",
+        "documented": 6,
+        "actual": 0
+      },
+      {
+        "project_id": "P10015",
+        "documented": 14,
+        "actual": 0
+      },
+      {
+        "project_id": "P10016",
+        "documented": 6,
+        "actual": 0
+      },
+      {
+        "project_id": "P10017",
+        "documented": 2,
+        "actual": 0
+      },
+      {
+        "project_id": "P10018",
+        "documented": 6,
+        "actual": 0
+      },
+      {
+        "project_id": "P10019",
+        "documented": 3,
+        "actual": 0
+      },
+      {
+        "project_id": "P10020",
+        "documented": 4,
+        "actual": 0
+      },
+      {
+        "project_id": "P10021",
+        "documented": 3,
+        "actual": 0
+      },
+      {
+        "project_id": "P10022",
+        "documented": 5,
+        "actual": 0
+      },
+      {
+        "project_id": "P10023",
+        "documented": 8,
+        "actual": 0
+      },
+      {
+        "project_id": "P10025",
+        "documented": 7,
+        "actual": 0
+      },
+      {
+        "project_id": "P10026",
+        "documented": 3,
+        "actual": 0
+      },
+      {
+        "project_id": "P10027",
+        "documented": 5,
+        "actual": 0
+      },
+      {
+        "project_id": "P10028",
+        "documented": 7,
+        "actual": 0
+      },
+      {
+        "project_id": "P10029",
+        "documented": 5,
+        "actual": 0
+      },
+      {
+        "project_id": "P10030",
+        "documented": 6,
+        "actual": 0
+      },
+      {
+        "project_id": "P10031",
+        "documented": 3,
+        "actual": 0
+      },
+      {
+        "project_id": "P10032",
+        "documented": 5,
+        "actual": 0
+      },
+      {
+        "project_id": "P10033",
+        "documented": 8,
+        "actual": 0
+      },
+      {
+        "project_id": "P10034",
+        "documented": 8,
+        "actual": 0
+      },
+      {
+        "project_id": "P10035",
+        "documented": 4,
+        "actual": 0
+      },
+      {
+        "project_id": "P10036",
+        "documented": 5,
+        "actual": 0
+      },
+      {
+        "project_id": "P10037",
+        "documented": 6,
+        "actual": 0
+      },
+      {
+        "project_id": "P10038",
+        "documented": 8,
+        "actual": 0
+      },
+      {
+        "project_id": "P10039",
+        "documented": 6,
+        "actual": 0
+      },
+      {
+        "project_id": "P10040",
+        "documented": 4,
+        "actual": 0
+      },
+      {
+        "project_id": "P10041",
+        "documented": 0,
+        "actual": 22
+      },
+      {
+        "project_id": "P10043",
+        "documented": 7,
+        "actual": 0
+      },
+      {
+        "project_id": "P10044",
+        "documented": 1,
+        "actual": 22
+      },
+      {
+        "project_id": "P10045",
+        "documented": 6,
+        "actual": 0
+      },
+      {
+        "project_id": "P10046",
+        "documented": 2,
+        "actual": 0
+      },
+      {
+        "project_id": "P10047",
+        "documented": 9,
+        "actual": 0
+      },
+      {
+        "project_id": "P10048",
+        "documented": 17,
+        "actual": 0
+      },
+      {
+        "project_id": "P10049",
+        "documented": 3,
+        "actual": 0
+      },
+      {
+        "project_id": "P10050",
+        "documented": 4,
+        "actual": 0
+      },
+      {
+        "project_id": "P10001",
+        "documented": 2,
+        "actual": 0
+      },
+      {
+        "project_id": "P10002",
+        "documented": 2,
+        "actual": 0
+      },
+      {
+        "project_id": "P10003",
+        "documented": 7,
+        "actual": 0
+      },
+      {
+        "project_id": "P10004",
+        "documented": 3,
+        "actual": 0
+      },
+      {
+        "project_id": "P10005",
+        "documented": 4,
+        "actual": 0
+      },
+      {
+        "project_id": "P10006",
+        "documented": 3,
+        "actual": 0
+      },
+      {
+        "project_id": "P10007",
+        "documented": 5,
+        "actual": 0
+      },
+      {
+        "project_id": "P10008",
+        "documented": 3,
+        "actual": 22
+      },
+      {
+        "project_id": "P10009",
+        "documented": 4,
+        "actual": 0
+      },
+      {
+        "project_id": "P10010",
+        "documented": 4,
+        "actual": 0
+      },
+      {
+        "project_id": "P10011",
+        "documented": 15,
+        "actual": 0
+      },
+      {
+        "project_id": "P10012",
+        "documented": 6,
+        "actual": 0
+      },
+      {
+        "project_id": "P10013",
+        "documented": 4,
+        "actual": 0
+      },
+      {
+        "project_id": "P10014",
+        "documented": 6,
+        "actual": 0
+      },
+      {
+        "project_id": "P10015",
+        "documented": 14,
+        "actual": 0
+      },
+      {
+        "project_id": "P10016",
+        "documented": 6,
+        "actual": 0
+      },
+      {
+        "project_id": "P10017",
+        "documented": 2,
+        "actual": 0
+      },
+      {
+        "project_id": "P10018",
+        "documented": 6,
+        "actual": 0
+      },
+      {
+        "project_id": "P10019",
+        "documented": 3,
+        "actual": 0
+      },
+      {
+        "project_id": "P10020",
+        "documented": 4,
+        "actual": 0
+      },
+      {
+        "project_id": "P10021",
+        "documented": 3,
+        "actual": 0
+      },
+      {
+        "project_id": "P10022",
+        "documented": 5,
+        "actual": 0
+      },
+      {
+        "project_id": "P10023",
+        "documented": 8,
+        "actual": 0
+      },
+      {
+        "project_id": "P10025",
+        "documented": 7,
+        "actual": 0
+      },
+      {
+        "project_id": "P10026",
+        "documented": 3,
+        "actual": 0
+      },
+      {
+        "project_id": "P10027",
+        "documented": 5,
+        "actual": 0
+      },
+      {
+        "project_id": "P10028",
+        "documented": 7,
+        "actual": 0
+      },
+      {
+        "project_id": "P10029",
+        "documented": 5,
+        "actual": 0
+      },
+      {
+        "project_id": "P10030",
+        "documented": 6,
+        "actual": 0
+      },
+      {
+        "project_id": "P10031",
+        "documented": 3,
+        "actual": 0
+      },
+      {
+        "project_id": "P10032",
+        "documented": 5,
+        "actual": 0
+      },
+      {
+        "project_id": "P10033",
+        "documented": 8,
+        "actual": 0
+      },
+      {
+        "project_id": "P10034",
+        "documented": 8,
+        "actual": 0
+      },
+      {
+        "project_id": "P10035",
+        "documented": 4,
+        "actual": 0
+      },
+      {
+        "project_id": "P10036",
+        "documented": 5,
+        "actual": 0
+      },
+      {
+        "project_id": "P10037",
+        "documented": 6,
+        "actual": 0
+      },
+      {
+        "project_id": "P10038",
+        "documented": 8,
+        "actual": 0
+      },
+      {
+        "project_id": "P10039",
+        "documented": 6,
+        "actual": 0
+      },
+      {
+        "project_id": "P10040",
+        "documented": 4,
+        "actual": 0
+      },
+      {
+        "project_id": "P10041",
+        "documented": 0,
+        "actual": 22
+      },
+      {
+        "project_id": "P10043",
+        "documented": 7,
+        "actual": 0
+      },
+      {
+        "project_id": "P10044",
+        "documented": 1,
+        "actual": 22
+      },
+      {
+        "project_id": "P10045",
+        "documented": 6,
+        "actual": 0
+      },
+      {
+        "project_id": "P10046",
+        "documented": 2,
+        "actual": 0
+      },
+      {
+        "project_id": "P10047",
+        "documented": 9,
+        "actual": 0
+      },
+      {
+        "project_id": "P10048",
+        "documented": 17,
+        "actual": 0
+      },
+      {
+        "project_id": "P10049",
+        "documented": 3,
+        "actual": 0
+      },
+      {
+        "project_id": "P10050",
+        "documented": 4,
+        "actual": 0
+      },
+      {
+        "project_id": "P10001",
+        "documented": 2,
+        "actual": 0
+      },
+      {
+        "project_id": "P10002",
+        "documented": 2,
+        "actual": 0
+      },
+      {
+        "project_id": "P10003",
+        "documented": 7,
+        "actual": 0
+      },
+      {
+        "project_id": "P10004",
+        "documented": 3,
+        "actual": 0
+      },
+      {
+        "project_id": "P10005",
+        "documented": 4,
+        "actual": 0
+      },
+      {
+        "project_id": "P10006",
+        "documented": 3,
+        "actual": 0
+      },
+      {
+        "project_id": "P10007",
+        "documented": 5,
+        "actual": 0
+      },
+      {
+        "project_id": "P10008",
+        "documented": 3,
+        "actual": 22
+      },
+      {
+        "project_id": "P10009",
+        "documented": 4,
+        "actual": 0
+      },
+      {
+        "project_id": "P10010",
+        "documented": 4,
+        "actual": 0
+      },
+      {
+        "project_id": "P10011",
+        "documented": 15,
+        "actual": 0
+      },
+      {
+        "project_id": "P10012",
+        "documented": 6,
+        "actual": 0
+      },
+      {
+        "project_id": "P10013",
+        "documented": 4,
+        "actual": 0
+      },
+      {
+        "project_id": "P10014",
+        "documented": 6,
+        "actual": 0
+      },
+      {
+        "project_id": "P10015",
+        "documented": 14,
+        "actual": 0
+      },
+      {
+        "project_id": "P10016",
+        "documented": 6,
+        "actual": 0
+      },
+      {
+        "project_id": "P10017",
+        "documented": 2,
+        "actual": 0
+      },
+      {
+        "project_id": "P10018",
+        "documented": 6,
+        "actual": 0
+      },
+      {
+        "project_id": "P10019",
+        "documented": 3,
+        "actual": 0
+      },
+      {
+        "project_id": "P10020",
+        "documented": 4,
+        "actual": 0
+      },
+      {
+        "project_id": "P10021",
+        "documented": 3,
+        "actual": 0
+      },
+      {
+        "project_id": "P10022",
+        "documented": 5,
+        "actual": 0
+      },
+      {
+        "project_id": "P10023",
+        "documented": 8,
+        "actual": 0
+      },
+      {
+        "project_id": "P10025",
+        "documented": 7,
+        "actual": 0
+      },
+      {
+        "project_id": "P10026",
+        "documented": 3,
+        "actual": 0
+      },
+      {
+        "project_id": "P10027",
+        "documented": 5,
+        "actual": 0
+      },
+      {
+        "project_id": "P10028",
+        "documented": 7,
+        "actual": 0
+      },
+      {
+        "project_id": "P10029",
+        "documented": 5,
+        "actual": 0
+      },
+      {
+        "project_id": "P10030",
+        "documented": 6,
+        "actual": 0
+      },
+      {
+        "project_id": "P10031",
+        "documented": 3,
+        "actual": 0
+      },
+      {
+        "project_id": "P10032",
+        "documented": 5,
+        "actual": 0
+      },
+      {
+        "project_id": "P10033",
+        "documented": 8,
+        "actual": 0
+      },
+      {
+        "project_id": "P10034",
+        "documented": 8,
+        "actual": 0
+      },
+      {
+        "project_id": "P10035",
+        "documented": 4,
+        "actual": 0
+      },
+      {
+        "project_id": "P10036",
+        "documented": 5,
+        "actual": 0
+      },
+      {
+        "project_id": "P10037",
+        "documented": 6,
+        "actual": 0
+      },
+      {
+        "project_id": "P10038",
+        "documented": 8,
+        "actual": 0
+      },
+      {
+        "project_id": "P10039",
+        "documented": 6,
+        "actual": 0
+      },
+      {
+        "project_id": "P10040",
+        "documented": 4,
+        "actual": 0
+      },
+      {
+        "project_id": "P10041",
+        "documented": 0,
+        "actual": 22
+      },
+      {
+        "project_id": "P10043",
+        "documented": 7,
+        "actual": 0
+      },
+      {
+        "project_id": "P10044",
+        "documented": 1,
+        "actual": 22
+      },
+      {
+        "project_id": "P10045",
+        "documented": 6,
+        "actual": 0
+      },
+      {
+        "project_id": "P10046",
+        "documented": 2,
+        "actual": 0
+      },
+      {
+        "project_id": "P10047",
+        "documented": 9,
+        "actual": 0
+      },
+      {
+        "project_id": "P10048",
+        "documented": 17,
+        "actual": 0
+      },
+      {
+        "project_id": "P10049",
+        "documented": 3,
+        "actual": 0
+      },
+      {
+        "project_id": "P10050",
+        "documented": 4,
+        "actual": 0
+      }
+    ]
+  }
+}

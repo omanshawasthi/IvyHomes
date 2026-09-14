@@ -1,0 +1,47 @@
+{
+  "name": "ivy-backend",
+  "version": "1.0.0",
+  "description": "Ivy Homes BFF — Express + TypeScript, no database",
+  "private": true,
+  "engines": { "node": ">=20.0.0" },
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --ext .ts --max-warnings 0",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "analyze": "tsx src/scripts/analyze.ts",
+    "generate-submission": "tsx src/scripts/generate-submission.ts",
+    "report": "tsx src/scripts/report.ts"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.4.1",
+    "helmet": "^7.1.0",
+    "pino": "^9.4.0",
+    "pino-pretty": "^11.2.2",
+    "uuid": "^10.0.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.7",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.5.5",
+    "@types/supertest": "^6.0.2",
+    "@types/uuid": "^10.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.6.0",
+    "@typescript-eslint/parser": "^8.6.0",
+    "@vitest/coverage-v8": "^2.1.1",
+    "eslint": "^9.10.0",
+    "supertest": "^7.0.0",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.2",
+    "vitest": "^2.1.1"
+  }
+}
